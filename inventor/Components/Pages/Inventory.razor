@@ -1,0 +1,75 @@
+﻿@using inventor.Data;
+@using inventor.Models
+@inject ApplicationDbContext Context
+@using inventor.Migrations
+@using Microsoft.EntityFrameworkCore;
+
+
+@page "/Account/Manage/inventory"
+
+<PageTitle>Инвентаризация</PageTitle>
+
+<h1>Инвентаризация</h1>
+
+<p>ПРОБУЕМ</p>
+
+@if (forecasts == null)
+{
+    <p><em>ЖДИ ЗАГРУЗКУ ДУРА</em></p>
+}
+else
+{
+    <h1> ЧЕТКА БРАТАН!</h1>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Fio</th>
+                <th>Nomer</th>
+                <th>Tip</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var forecast in inventors)
+            {
+                <tr>
+                    <td>@forecast.id</td>
+                    <td>@forecast.fio</td>
+                    <td>@forecast.nomer</td>
+                    <td>@forecast.tip</td>
+                    <td>
+                        <a href='/user/edit2/@forecast.id' class="btn btn-outline-dark" role="button">
+                            Edit
+                        </a>
+                        <a href='/user/delete/@forecast.id' class="btn btn-outline-danger" role="button">
+                            Delete
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+}
+
+@code {
+
+    private WeatherForecast[]? forecasts;
+    private List<inventor> inventors;  // Теперь using директивы будут работать
+    protected override async Task OnInitializedAsync()
+    {
+        inventors = await Context.inventors.ToListAsync();
+        forecasts = Enumerable.Range(1, 5).Select(index => new WeatherForecast { }).ToArray();
+    }
+
+    private class WeatherForecast
+    {
+        public DateOnly Date { get; set; }
+        public int TemperatureC { get; set; }
+        public string? Summary { get; set; }
+        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    }
+
+
+
+}

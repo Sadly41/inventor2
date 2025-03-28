@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>aspnet-inventor-571f291d-aa03-49c5-b861-6d5fcc8ba55f</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="Components\Account\Pages\Delete.razor" />
+    <Content Remove="Components\Account\Pages\Inventory.razor" />
+    <Content Remove="Components\Account\Pages\Manage\Delete - Копировать.razor" />
+    <Content Remove="Components\Account\Pages\Manage\Delete.razor" />
+    <Content Remove="Components\Account\Pages\Manage\Edit.razor" />
+    <Content Remove="Components\Account\Shared\Inventory.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="9.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.3" />
+  </ItemGroup>
+
+</Project>

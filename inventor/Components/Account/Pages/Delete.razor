@@ -1,0 +1,85 @@
+﻿@page "/Account/Manage/delete3/{id:int}"
+@using inventor.Data;
+@using inventor.Models
+@inject ApplicationDbContext Context
+@inject NavigationManager NavigationManager
+@inject ILogger<Delete> Logger
+
+<h1>Удаление пользователя</h1>
+
+@if (inventor == null && !loading)
+{
+    <p><em>Пользователь не найден.</em></p>
+}
+else if (inventor == null && loading)
+{
+    <p><em>Загрузка...</em></p>
+}
+else
+{
+    <p>Вы уверены, что хотите удалить пользователя @inventor.fio?</p>
+
+    <button class="btn btn-danger" @onclick="DeleteUser">Удалить</button>
+    <button class="btn btn-secondary" @onclick="Cancel">Отмена</button>
+}
+
+@code {
+    [Parameter]
+    public int id { get; set; }
+
+    private inventor inventor;
+    private bool loading = true;  // Добавлено состояние загрузки
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            inventor = await Context.inventors.FindAsync(id);
+            if (inventor == null)
+            {
+                Logger.LogWarning($"Пользователь с ID {id} не найден.");
+                // Обработка случая, если пользователь не найден
+                NavigationManager.NavigateTo("/Account/inventory2", forceLoad: true); // Редирект на страницу инвентаря
+                return; // Важно выйти из метода, чтобы не было исключений
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, $"Ошибка при загрузке пользователя с ID {id}.");
+            // Обработка ошибки, например, перенаправление на страницу ошибок
+            NavigationManager.NavigateTo("/error");
+        }
+        finally
+        {
+            loading = false; // Загрузка завершена, независимо от результата
+            StateHasChanged();
+        }
+    }
+
+    private async Task DeleteUser()
+    {
+        try
+        {
+            if (inventor != null)
+            {
+                Context.inventors.Remove(inventor);
+                await Context.SaveChangesAsync();
+
+                NavigationManager.NavigateTo("/Account/inventory2", forceLoad: true); // После удаления редирект
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, $"Ошибка при удалении пользователя с ID {id}.");
+            // Обработка ошибки (показать сообщение пользователю, перенаправить)
+            //  Например:  errorMassage = "Произошла ошибка при удалении пользователя."
+            //  Можно отображать  @errorMessage в интерфейсе
+        }
+    }
+
+    private void Cancel()
+    {
+        Console.WriteLine("Кнопка отмены нажата!");
+        NavigationManager.NavigateTo("/Account/Manage", forceLoad: true); // Отмена - редирект
+    }
+}

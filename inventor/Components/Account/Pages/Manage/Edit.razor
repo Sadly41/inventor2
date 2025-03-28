@@ -1,0 +1,91 @@
+﻿@page "/user/edit/{id:int}"
+@using inventor.Data;
+@using inventor.Models
+@inject ApplicationDbContext Context
+@inject NavigationManager NavigationManager
+@inject ILogger<Edit> Logger
+
+<h3>Редактировать записи</h3>
+
+@if (inventor == null && loading)
+{
+    <p><em>Загрузка...</em></p>
+}
+else
+{
+
+    <div>
+        <p>
+            Fio:<br />
+            <InputText @bind-Value="inventor.fio" />
+        </p>
+                <p>
+            Tip:<br />
+            <InputText @bind-Value="inventor.tip" />
+        </p>
+                <p>
+            Nomers:<br />
+            <InputText @bind-Value="inventor.nomer" />
+        </p>
+     
+        
+    </div>
+    <button class="btn btn-danger" >Сохранить</button>
+    <button class="btn btn-secondary" @onclick="Cancel">Отмена</button>
+}
+
+@code {
+    private bool loading = true;
+    [Parameter]
+    public int Id { get; set; }  // Получаем id через маршрут.
+
+    private inventor inventor = null;  // Инициализируем null (чтобы показывать сообщение о загрузке).
+    private string errorMessage = null; // Для сообщений об ошибках
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            inventor = await Context.inventors.FindAsync(Id);  // Загружаем Inventor по Id.
+            if (inventor == null)
+            {
+                errorMessage = $"Запись с Id = {Id} не найдена.";
+
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Ошибка при загрузке Inventor: {ex.Message}";
+            Console.Error.WriteLine(errorMessage); // Логируем ошибку в консоль
+        }
+    }
+
+    private async Task SaveInventor()
+    {
+        try
+        {
+            if (inventor != null)
+            {
+                Context.inventors.Update(inventor);  // Обновляем Inventor.
+                await Context.SaveChangesAsync(); // Сохраняем изменения асинхронно.
+                NavigationManager.NavigateTo("/inventorlist");   // Переходим к списку.
+            }
+            else
+            {
+                errorMessage = "Ошибка: Невозможно сохранить данные, запись не найдена.";
+                Console.Error.WriteLine(errorMessage);
+            }
+
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Ошибка при сохранении Inventor: {ex.Message}";
+            Console.Error.WriteLine(errorMessage);
+        }
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/inventorlist"); // Переходим к списку.
+    }
+}

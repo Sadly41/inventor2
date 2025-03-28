@@ -1,0 +1,76 @@
+﻿@page "/user/delete/{id:int}"
+@using inventor.Data;
+@using inventor.Models
+@inject ApplicationDbContext Context
+@inject NavigationManager NavigationManager
+@inject ILogger<Delete> Logger
+
+
+
+<h1>Удаление записи</h1>
+
+@if (inventor == null && loading)
+{
+    <p><em>Загрузка...</em></p>
+}
+else
+{
+    <p>Вы уверены, что хотите удалить @inventor.fio?</p>
+
+    <button class="btn btn-danger" @onclick="DeleteUser">Удалить</button>
+    <button class="btn btn-secondary" @onclick="Cancel">Отмена</button>
+}
+
+@code {
+    
+    [Parameter]
+    public int id { get; set; }
+    private inventor inventor;
+    private bool loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            inventor = await Context.inventors.FindAsync(id);
+            if (inventor == null)
+            {
+                Logger.LogWarning($"ID = {id} не найден.");
+                NavigationManager.NavigateTo("/Account/Manage/inventory2", forceLoad: true);
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, $"Ошибка при загрузке ID = {id}.");
+            NavigationManager.NavigateTo("/error");
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    private async Task DeleteUser()
+    {
+        try
+        {
+            if (inventor != null)
+            {
+                Context.inventors.Remove(inventor);
+                await Context.SaveChangesAsync();
+
+                NavigationManager.NavigateTo("/Account/Manage/inventory2", forceLoad: true);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, $"Ошибка при удалении ID = {id}.");
+        }
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/Account/Manage/inventory2", forceLoad: true);
+    }
+}
